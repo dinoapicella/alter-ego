@@ -1,0 +1,17 @@
+{
+  "ALTER_EGO": {
+    "ContextMenu": {
+      "CycleImage": "🔄 Change Token Image"
+    },
+    "Notifications": {
+      "ImageChanged": "✅ Image {index} of {total}"
+    },
+    "Warnings": {
+      "NoActor": "⚠️ Token has no actor",
+      "NoImages": "⚠️ No images configured. Open actor sheet and click Alter Ego button."
+    },
+    "Errors": {
+      "UpdateFailed": "❌ Failed to change image"
+    }
+  }
+}

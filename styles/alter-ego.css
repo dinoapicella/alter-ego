@@ -1,0 +1,35 @@
+/* Alter Ego - Stili */
+
+/* Bottoni nella title bar della scheda */
+.alter-ego-button,
+.alter-ego-cycle-button {
+  flex: 0;
+  padding: 0 8px;
+  font-size: 14px;
+  line-height: 28px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.alter-ego-button {
+  color: #ff6400;
+}
+
+.alter-ego-button:hover {
+  color: #ff7a1a;
+  text-shadow: 0 0 8px rgba(255, 100, 0, 0.6);
+}
+
+.alter-ego-cycle-button {
+  color: #4CAF50;
+}
+
+.alter-ego-cycle-button:hover {
+  color: #66BB6A;
+  text-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.alter-ego-button i,
+.alter-ego-cycle-button i {
+  margin: 0;
+}

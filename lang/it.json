@@ -1,0 +1,23 @@
+{
+  "ALTER_EGO": {
+    "ContextMenu": {
+      "CycleImage": "🔄 Cambia Immagine Token"
+    },
+    "ActorSheet": {
+      "AlternativeImages": "🔄 Alter Ego - Immagini Alternative",
+      "Placeholder": "Inserisci i percorsi delle immagini alternative (uno per riga):\n\nEsempio:\nworlds/mio-mondo/tokens/normale.png\nworlds/mio-mondo/tokens/trasformato.png\nworlds/mio-mondo/tokens/ferito.png",
+      "Help": "💡 Dopo aver salvato, fai click destro sul token e scegli 'Cambia Immagine Token' per ciclare tra le immagini."
+    },
+    "Notifications": {
+      "ImageChanged": "✅ Immagine cambiata: {index} di {total}",
+      "ImagesSaved": "✅ Immagini alternative salvate! Ora puoi cambiare l'immagine del token con click destro."
+    },
+    "Warnings": {
+      "NoActor": "⚠️ Questo token non ha un attore associato",
+      "NoImages": "⚠️ Nessuna immagine alternativa configurata.\n\nApri la scheda dell'attore → Prototype Token → cerca il campo 'Alter Ego - Immagini Alternative'"
+    },
+    "Errors": {
+      "UpdateFailed": "❌ Errore nell'aggiornamento dell'immagine del token"
+    }
+  }
+}
