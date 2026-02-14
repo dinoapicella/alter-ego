@@ -59,42 +59,60 @@ class AlterEgo {
    * Registra gli hooks necessari
    */
   static registerHooks() {
-    // Hook per aggiungere il pulsante al menu contestuale del token
-    Hooks.on('getTokenHUDContextMenuOptions', this.addContextMenuOption.bind(this));
+    console.log('[ALTER EGO] Registrazione hooks...');
+    
+    // Hook per aggiungere bottone nel TokenHUD (barra sopra il token)
+    Hooks.on('renderTokenHUD', (hud, html, data) => {
+      this.addTokenHUDButton(hud, html, data);
+    });
     
     // Hook per aggiungere bottoni nella scheda attore
     Hooks.on('renderActorSheet', this.addButtons.bind(this));
     Hooks.on('renderActorSheetV2', this.addButtons.bind(this));
     
-    // Keybinding per cambiare immagine con tasti
-    this.registerKeybinding();
+    console.log('[ALTER EGO] Hooks registrati');
   }
   
   /**
-   * Registra la keybinding per cambiare immagine
+   * Aggiunge bottone nel TokenHUD (barra sopra il token)
    */
-  static registerKeybinding() {
-    game.keybindings.register(this.ID, 'cycle-image', {
-      name: 'Cambia Immagine Token Selezionato',
-      hint: 'Cicla tra le immagini alternative del token selezionato',
-      editable: [
-        {
-          key: 'KeyE',
-          modifiers: ['Shift']
-        }
-      ],
-      onDown: () => {
-        const controlled = canvas.tokens.controlled;
-        if (controlled.length === 1) {
-          this.cycleTokenImage(controlled[0]);
-        } else if (controlled.length === 0) {
-          ui.notifications.warn('⚠️ Seleziona un token prima');
-        } else {
-          ui.notifications.warn('⚠️ Seleziona un solo token');
-        }
-        return true;
-      }
+  static addTokenHUDButton(hud, html, data) {
+    const token = hud.object;
+    
+    if (!token?.actor) return;
+    
+    // Controlla se ha immagini configurate
+    const config = token.actor.getFlag(this.ID, this.FLAGS.IMAGES);
+    if (!config || !Array.isArray(config) || config.length === 0) return;
+    
+    // Converti html in jQuery se necessario (v13 passa HTMLElement)
+    const $html = html instanceof jQuery ? html : $(html);
+    
+    // Crea il bottone
+    const button = $(`
+      <div class="control-icon alter-ego-hud" title="Change Token Image">
+        <i class="fas fa-sync-alt"></i>
+      </div>
+    `);
+    
+    // Click sul bottone
+    button.on('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      await this.cycleTokenImage(token);
     });
+    
+    // Aggiungi il bottone alla barra (dopo gli altri controlli)
+    const controls = $html.find('.col.right');
+    if (controls.length > 0) {
+      controls.append(button);
+    } else {
+      // Fallback: prova a trovare altri container
+      const hudControls = $html.find('.control-icon').last();
+      if (hudControls.length > 0) {
+        button.insertAfter(hudControls);
+      }
+    }
   }
 
   /**
@@ -343,7 +361,7 @@ class AlterEgo {
               <div class="ae-help-title">🎬 How it works:</div>
               • Effect plays when you <strong>change TO</strong> that image<br>
               • Leave effect field empty = no effect<br>
-              • After saving, use green 🔄 button or press <strong>Shift+E</strong> to cycle images
+              • After saving, use green 🔄 button or right-click token to cycle images
             </div>
             
             <div class="ae-help-section">
@@ -654,23 +672,46 @@ class AlterEgo {
    * Aggiunge l'opzione al menu contestuale del token
    */
   static addContextMenuOption(html, options) {
+    console.log('[ALTER EGO] addContextMenuOption chiamato');
+    console.log('[ALTER EGO] HTML:', html);
+    console.log('[ALTER EGO] Numero opzioni esistenti:', options.length);
+    
     options.push({
-      name: '🔄 Cambia Immagine Token',
+      name: '🔄 Change Token Image',
       icon: '<i class="fas fa-sync-alt"></i>',
       condition: (li) => {
-        const token = canvas.tokens.get(li.data('token-id'));
-        if (!token?.actor) return false;
+        console.log('[ALTER EGO] Controllo condizione per:', li);
+        const tokenId = li.data('token-id');
+        console.log('[ALTER EGO] Token ID:', tokenId);
+        
+        const token = canvas.tokens.get(tokenId);
+        console.log('[ALTER EGO] Token trovato:', token);
+        
+        if (!token?.actor) {
+          console.log('[ALTER EGO] Token senza attore');
+          return false;
+        }
         
         const config = token.actor.getFlag(this.ID, this.FLAGS.IMAGES);
-        if (!config || !Array.isArray(config) || config.length === 0) return false;
+        console.log('[ALTER EGO] Config trovata:', config);
         
+        if (!config || !Array.isArray(config) || config.length === 0) {
+          console.log('[ALTER EGO] Nessuna config valida');
+          return false;
+        }
+        
+        console.log('[ALTER EGO] ✅ Condizione OK, mostra opzione');
         return true;
       },
       callback: (li) => {
-        const token = canvas.tokens.get(li.data('token-id'));
+        console.log('[ALTER EGO] Callback chiamato!');
+        const tokenId = li.data('token-id');
+        const token = canvas.tokens.get(tokenId);
         if (token) this.cycleTokenImage(token);
       }
     });
+    
+    console.log('[ALTER EGO] Opzione aggiunta, totale ora:', options.length);
   }
 
   /**

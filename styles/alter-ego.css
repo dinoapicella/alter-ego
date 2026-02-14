@@ -33,3 +33,16 @@
 .alter-ego-cycle-button i {
   margin: 0;
 }
+
+/* Bottone nel TokenHUD (barra sopra il token) */
+.alter-ego-hud {
+  color: #4CAF50;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.alter-ego-hud:hover {
+  color: #66BB6A;
+  text-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  transform: rotate(180deg);
+}
