@@ -198,14 +198,18 @@ class AlterEgo {
     
     const images = config.map(item => {
       if (typeof item === 'string') {
-        return { path: item, effect: '' };
+        return { path: item, effect: '', size: 'medium' };
       }
-      return item;
+      return { 
+        path: item.path || '', 
+        effect: item.effect || '', 
+        size: item.size || 'medium' 
+      };
     });
     
     let rows = '';
     images.forEach((img, idx) => {
-      rows += this.createImageRow(idx, img.path, img.effect);
+      rows += this.createImageRow(idx, img.path, img.effect, img.size);
     });
     
     const content = `
@@ -380,13 +384,14 @@ class AlterEgo {
           <thead>
             <tr>
               <th style="width: 25px;">${game.i18n.localize('ALTER_EGO.Table.Number')}</th>
-              <th style="width: 48%;">${game.i18n.localize('ALTER_EGO.Table.ImagePath')}</th>
-              <th style="width: 48%;">${game.i18n.localize('ALTER_EGO.Table.EffectPath')}</th>
+              <th style="width: 40%;">${game.i18n.localize('ALTER_EGO.Table.ImagePath')}</th>
+              <th style="width: 40%;">${game.i18n.localize('ALTER_EGO.Table.EffectPath')}</th>
+              <th style="width: 100px;">${game.i18n.localize('ALTER_EGO.Table.Size')}</th>
               <th style="width: 25px;"></th>
             </tr>
           </thead>
           <tbody id="images-table">
-            ${rows || `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #777;">${game.i18n.localize('ALTER_EGO.Dialog.NoImages')}</td></tr>`}
+            ${rows || `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #777;">${game.i18n.localize('ALTER_EGO.Dialog.NoImages')}</td></tr>`}
           </tbody>
         </table>
         
@@ -424,6 +429,17 @@ class AlterEgo {
             </div>
             
             <div class="ae-help-section">
+              <div class="ae-help-title">${game.i18n.localize('ALTER_EGO.Help.SizeTitle')}</div>
+              ${game.i18n.localize('ALTER_EGO.Help.SizeInfo')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.SizeTiny')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.SizeSmall')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.SizeMedium')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.SizeLarge')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.SizeHuge')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.SizeGargantuan')}
+            </div>
+            
+            <div class="ae-help-section">
               <div class="ae-help-title">${game.i18n.localize('ALTER_EGO.Help.JB2ATitle')}</div>
               • ${game.i18n.localize('ALTER_EGO.Help.JB2AOptional')}<br>
               • ${game.i18n.localize('ALTER_EGO.Help.JB2AWithout')}<br>
@@ -456,16 +472,22 @@ class AlterEgo {
             html.find('.ae-row').each(function() {
               const path = $(this).find('.img-path').val().trim();
               const effect = $(this).find('.effect-path').val().trim();
+              const size = $(this).find('.token-size').val() || 'medium';
               
               if (path) {
-                images.push({ path, effect: effect || '' });
+                images.push({ path, effect: effect || '', size });
               }
             });
             
-            await actor.setFlag(AlterEgo.ID, AlterEgo.FLAGS.IMAGES, images);
-            await actor.setFlag(AlterEgo.ID, AlterEgo.FLAGS.CURRENT_INDEX, 0);
-            
-            ui.notifications.info(game.i18n.format('ALTER_EGO.Notifications.ImagesSaved', {count: images.length}));
+            try {
+              await actor.setFlag(AlterEgo.ID, AlterEgo.FLAGS.IMAGES, images);
+              await actor.setFlag(AlterEgo.ID, AlterEgo.FLAGS.CURRENT_INDEX, 0);
+              
+              ui.notifications.info(game.i18n.format('ALTER_EGO.Notifications.ImagesSaved', {count: images.length}));
+            } catch (error) {
+              console.error('[ALTER EGO] Error saving configuration:', error);
+              ui.notifications.error('Error saving configuration. Check console for details.');
+            }
           }
         },
         cancel: {
@@ -489,7 +511,20 @@ class AlterEgo {
   /**
    * Crea una riga della tabella
    */
-  static createImageRow(index, imagePath = '', effectPath = '') {
+  static createImageRow(index, imagePath = '', effectPath = '', size = 'medium') {
+    const sizeOptions = [
+      { value: 'tiny', label: 'Tiny (0.5×0.5)' },
+      { value: 'small', label: 'Small (1×1)' },
+      { value: 'medium', label: 'Medium (1×1)' },
+      { value: 'large', label: 'Large (2×2)' },
+      { value: 'huge', label: 'Huge (3×3)' },
+      { value: 'gargantuan', label: 'Gargantuan (4×4)' }
+    ];
+    
+    const sizeOptionsHTML = sizeOptions.map(opt => 
+      `<option value="${opt.value}" ${opt.value === size ? 'selected' : ''}>${opt.label}</option>`
+    ).join('');
+    
     return `
       <tr class="ae-row">
         <td style="text-align: center; color: #666; font-weight: 600;">${index + 1}</td>
@@ -519,6 +554,11 @@ class AlterEgo {
               📁
             </button>
           </div>
+        </td>
+        <td>
+          <select class="token-size ae-input" style="width: 100%; padding: 5px 4px;">
+            ${sizeOptionsHTML}
+          </select>
         </td>
         <td style="text-align: center;">
           <button type="button" class="remove-row ae-btn-icon ae-btn-remove" title="${game.i18n.localize('ALTER_EGO.Table.Remove')}">
@@ -757,9 +797,13 @@ class AlterEgo {
     // Converti vecchio formato in nuovo formato se necessario
     const images = config.map(item => {
       if (typeof item === 'string') {
-        return { path: item, effect: '' };
+        return { path: item, effect: '', size: 'medium' };
       }
-      return item;
+      return { 
+        path: item.path || '', 
+        effect: item.effect || '', 
+        size: item.size || 'medium' 
+      };
     });
 
     // Ottieni l'indice corrente dal TOKEN (non dall'attore - evita conflitti)
@@ -768,20 +812,35 @@ class AlterEgo {
     // Incrementa (con wrap)
     currentIndex = (currentIndex + 1) % images.length;
     
-    // Nuova immagine e effetto
+    // Nuova immagine, effetto e size
     const newImage = images[currentIndex];
     const imagePath = newImage.path;
     const effectPath = newImage.effect;
+    const size = newImage.size || 'medium';
     
     try {
-      // Riproduci l'effetto (se c'è)
+      // Converti size in dimensioni griglia Foundry
+      const sizeMap = {
+        'tiny': 0.5,
+        'small': 1,
+        'medium': 1,
+        'large': 2,
+        'huge': 3,
+        'gargantuan': 4
+      };
+      
+      const gridSize = sizeMap[size] || 1;
+      
+      // Riproduci l'effetto (se c'è) con la scala giusta
       if (effectPath && effectPath.trim() !== '') {
-        await this.playEffect(token, effectPath);
+        await this.playEffect(token, effectPath, gridSize);
       }
       
-      // Cambia l'immagine del token
+      // Cambia l'immagine E la dimensione del token
       await token.document.update({ 
-        'texture.src': imagePath 
+        'texture.src': imagePath,
+        'width': gridSize,
+        'height': gridSize
       });
       
       // Salva l'indice sul TOKEN (non sull'attore - evita conflitti)
@@ -799,7 +858,7 @@ class AlterEgo {
   /**
    * Riproduce un effetto sul token
    */
-  static async playEffect(token, effectPath) {
+  static async playEffect(token, effectPath, scale = 1.0) {
     // Verifica Sequencer (silenzioso - nessun popup)
     if (typeof Sequencer === 'undefined') {
       return;
@@ -819,7 +878,7 @@ class AlterEgo {
           .effect()
             .file(effectPath)
             .atLocation(token)
-            .scale(1.0)
+            .scale(scale)
             .duration(2000)
             .fadeIn(200)
             .fadeOut(500)
@@ -845,7 +904,7 @@ class AlterEgo {
         .effect()
           .file(effectPath)
           .atLocation(token)
-          .scale(1.0)
+          .scale(scale)
           .duration(2000)
           .fadeIn(200)
           .fadeOut(500)
