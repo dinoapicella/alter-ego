@@ -1,9 +1,16 @@
 # Alter Ego
+<div align="center">
+  <img src="https://img.shields.io/github/downloads/dinoapicella/alter-ego/total?color=2b82fc&label=Downloads&style=for-the-badge" alt="Total Downloads">
+  <img src="https://img.shields.io/github/v/release/dinoapicella/alter-ego?color=2b82fc&label=Latest%20Release&style=for-the-badge" alt="Latest Release">
+  <a href="https://ko-fi.com/dinoapicella">
+    <img src="https://img.shields.io/badge/Ko--fi-Support%20Development-%23FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi">
+  </a>
+</div>
 
-**Cycle between alternative token images with optional particle effects**
 
-Transform your tokens on the fly! Switch between different forms, states, or appearances with a single click. Add visual effects to make transformations more dramatic.
-Pay attention this WILL NOT change the size of the token!
+**Cycle between alternative token images with optional particle effects and automatic token resizing**
+
+Transform your tokens on the fly! Switch between different forms, states, or appearances with a single click. Add visual effects. The module can also automatically resize tokens when switching between images.
 
 ---
 
@@ -16,8 +23,9 @@ Alter Ego lets you configure **multiple images** for a single actor and **switch
 - **Disguises** (real identity ↔ disguised form)
 - **Elemental forms** (fire ↔ water ↔ earth ↔ air)
 - **Mounted/unmounted** characters
+- **Size changes** (baby dragon → ancient dragon, small creature → giant form)
 
-You can also add **particle effects** (explosions, magic auras, etc.) that play when switching to an image.
+You can also add **particle effects** (explosions, magic auras, etc.) that play when switching to an image, and configure **different token sizes** for each form.
 
 ---
 
@@ -54,6 +62,7 @@ A configuration window opens with a table. Click **"+ Add Image"** to add a new 
 Each row has:
 - **Token Image Path** - The image file for this form
 - **Effect Path (optional)** - A visual effect that plays when switching to this image
+- **Token Size** - The grid size for this token form (Tiny to Gargantuan)
 
 ### Step 4: Choose Images
 
@@ -83,6 +92,19 @@ Use your own effect animations:
 #### Option 3: No Effect
 Simply leave the "Effect Path" field empty.
 
+### Step 5b: Choose Token Size
+
+Each image can have a different token size. Select from the dropdown:
+
+- **Tiny (0.5×0.5)** - Half a grid square (pixies, fairies, small familiars)
+- **Small (1×1)** - One grid square (halflings, gnomes, small creatures)
+- **Medium (1×1)** - One grid square (humans, elves, most PCs) - **Default**
+- **Large (2×2)** - Four grid squares (ogres, horses, bears)
+- **Huge (3×3)** - Nine grid squares (giants, elephants, young dragons)
+- **Gargantuan (4×4)** - Sixteen grid squares (ancient dragons, colossal creatures)
+
+> **Automatic Scaling:** When you switch images, the token automatically resizes AND the particle effect scales to match!
+
 ### Step 6: Save
 Click **"Save"** at the bottom of the window.
 
@@ -97,6 +119,7 @@ Once configured, changing images is simple:
 2. A toolbar appears
 3. Click the **🔄 green button** in the toolbar
 4. The image changes to the next one in your list
+5. The token automatically resizes to match the configured size
 
 > **Note:** The button only appears if the token has multiple images configured.
 
@@ -106,30 +129,55 @@ Once configured, changing images is simple:
 
 ### Example 1: Werewolf Transformation
 1. Configure your actor with:
-   - Image 1: `human.png` (no effect)
-   - Image 2: `werewolf.png` with effect `jb2a.explosion.01.orange` or a custom effect `mycustomfile.explosion`
+   - Image 1: `human.png` + **Medium (1×1)** + no effect
+   - Image 2: `werewolf.png` + **Large (2×2)** + effect `jb2a.explosion.01.orange` or custom `mycustomfile.explosion`
 2. During combat, select the token and click 🔄
-3. The token transforms with a dramatic explosion effect!
-
+3. The token transforms with a dramatic explosion effect AND grows to 2×2 size!
 
 ### Example 2: Health States
 1. Configure three images:
-   - Healthy: `character-normal.png`
-   - Bloodied: `character-wounded.png`
-   - Unconscious: `character-down.png`
+   - Healthy: `character-normal.png` + **Medium (1×1)**
+   - Bloodied: `character-wounded.png` + **Medium (1×1)**
+   - Unconscious: `character-down.png` + **Medium (1×1)**
 2. Switch manually as the character takes damage
+
+### Example 3: Growing Dragon
+1. Configure a dragon that grows over time:
+   - Baby: `dragon-baby.png` + **Tiny (0.5×0.5)** + `jb2a.energy_field.02.blue`
+   - Young: `dragon-young.png` + **Large (2×2)** + `jb2a.explosion.blue`
+   - Adult: `dragon-adult.png` + **Huge (3×3)** + `jb2a.explosion.orange`
+   - Ancient: `dragon-ancient.png` + **Gargantuan (4×4)** + `jb2a.explosion.dark_red`
+2. Each transformation makes the dragon bigger with appropriately scaled effects!
+
+---
+
+## ⚠️ Known Issues
+
+### Effect Scaling with Different Token Sizes
+When transitioning between tokens of **significantly different sizes**, particle effects may not appear perfectly centered or sized during the transformation animation.
+
+**Workaround:** Effects are automatically scaled to match the target token size, but the transition moment may look slightly off. Choose effects that work well with size changes (explosions, auras) rather than directional effects (beams, projectiles).
+
+### Image Resolution Differences
+If you use images with **very different resolutions** for the same actor (e.g., 512x512 and 2048x2048), you may experience:
+- Brief visual artifacts during the transition
+- Slight misalignment of the token on the grid
+- Performance issues with very large images
+
+**Best Practice:** Use images with similar resolutions (e.g., all 1024x1024 or all 512x512) for the smoothest transitions. Foundry VTT recommends token images in the 256-1024 pixel range for optimal performance.
 
 ---
 
 ## ❓ Frequently Asked Questions
 
-### Q: Can players see/use Alter Ego?
-**A:** No, only Game Masters can configure token images. This is intentional to prevent players from accidentally breaking things.
+### Q: Can players configure Alter Ego?
+**A:** No, only Game Masters can configure token images. This is intentional to prevent players from accidentally breaking things. The players can change images instead.
 
-### Q: Do I need JB2A to use this module?
-**A:** No! JB2A is **optional**. You can:
+### Q: Do I need Sequencer and JB2A to use this module?
+**A:** No! Sequencer and JB2A are **optional**. You can:
 - Use Alter Ego without any effects
 - Use your own custom video files (.webm, .mp4)
+- You have to install Sequencer if you want to use any effects, JB2A if you want an entire database of effects ready on the fly.
 
 ### Q: Can I use this with any actor?
 **A:** Yes! Works with all actor types in all game systems.
@@ -151,14 +199,30 @@ Once configured, changing images is simple:
 - Your custom video file exists in the specified location
 
 ### Q: How do I remove an image?
-**A:** Click the ✖ button at the end of the row in the configuration table.
+**A:** Click the ✖ button at the end of the row in the configuration table. Or empty the input field!
 
 ### Q: Can I reorder images?
 **A:** Not directly, but you can remove and re-add them in the desired order.
 
+### Q: Does changing token size affect the actor's actual size in the game system?
+**A:** No. This only changes the visual size of the token on the map. It does not modify the actor's size category in the game system (e.g., D&D 5e size). You'll need to update that separately if needed.
+
 ---
 
 ## 🔧 Troubleshooting
+
+### "flatObject is not defined" error
+This error comes from **other modules** that are incompatible with Foundry VTT v13. Common culprits:
+- **Libwrapper** (old version)
+- **Hooker** module
+- Other modules using deprecated Foundry v12 APIs
+
+**Solution:**
+1. Update all your modules to their latest versions
+2. Disable modules one by one to find the incompatible one
+3. Check the module's GitHub for v13 compatibility updates
+
+**Note:** This is NOT an Alter Ego bug. The module works correctly but another module is interfering.
 
 ### Token HUD button doesn't appear
 - Make sure the token has **at least 2 images** configured
@@ -174,6 +238,12 @@ Once configured, changing images is simple:
 - Use the 🔍 search to find valid JB2A effects
 - For custom effects, verify the video file exists
 
+### Token size doesn't change
+- Make sure you've selected a size other than "Medium" in the dropdown
+- Verify the token document has update permissions
+- Check console (F12) for any errors during the transition
+### Best pracice for image
+- Use the same image of the actor as the first image in the table. 
 ---
 
 ## 🌍 Language Support
@@ -213,7 +283,7 @@ A library of 1600+ free animated effects.
 - Your own custom effect files (You need only Sequencer and custom effect files in the format .webm, .mp4)
 - JB2A effects (if both Sequencer and JB2A are installed)
 
-All credits for effects go to the respective teams. Alter Ego provides an interface to search and use them.
+All credits go to the respective teams. Alter Ego provides an interface to search and use them.
 
 ---
 
@@ -233,26 +303,15 @@ Feel free to reach out with ideas for new modules or functionality that might he
 
 [MIT License](LICENSE)
 
-
 ---
 
 ## 🙏 Credits
 
 - **Created by:** Dino Apicella
-- **JB2A Team:** For the amazing animated assets library
-- **Sequencer Team:** For the excellent effects framework
+- **Sequencer Team:** For the excellent effects framework (MIT License)
+- **JB2A Team:** For the amazing free animated assets library (CC BY-NC-SA 4.0)
+- **Foundry Community:** For testing and feedback
 
 ---
-
-### About JB2A Integration
-
-This module integrates with but does not include JB2A.
-JB2A is a separate, optional module.
-
-- JB2A License: CC BY-NC-SA 4.0
-- JB2A Module: [[link](https://github.com/Jules-Bens-Aa/JB2A_DnD5e)]
-- Alter Ego works with or without JB2A
-
-All credit for JB2A effects goes to the JB2A team.
 
 **Need help?** Check the **💡 Help & Instructions** section inside the configuration dialog for quick reference!
