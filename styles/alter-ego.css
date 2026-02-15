@@ -1,37 +1,31 @@
 /* Alter Ego - Stili */
 
-/* Bottoni nella title bar della scheda */
-.alter-ego-button,
-.alter-ego-cycle-button {
-  flex: 0;
-  padding: 0 8px;
-  font-size: 14px;
-  line-height: 28px;
+/* Bottone Alter Ego stile Configure/Close */
+.alter-ego-config {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  color: #ff6400;
   cursor: pointer;
   transition: all 0.2s;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 3px;
 }
 
-.alter-ego-button {
-  color: #ff6400;
-}
-
-.alter-ego-button:hover {
+.alter-ego-config:hover {
+  background: rgba(255, 100, 0, 0.1);
   color: #ff7a1a;
-  text-shadow: 0 0 8px rgba(255, 100, 0, 0.6);
 }
 
-.alter-ego-cycle-button {
-  color: #4CAF50;
+.alter-ego-config i {
+  font-size: 14px;
 }
 
-.alter-ego-cycle-button:hover {
-  color: #66BB6A;
-  text-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
-
-.alter-ego-button i,
-.alter-ego-cycle-button i {
-  margin: 0;
+.alter-ego-config span {
+  line-height: 1;
 }
 
 /* Bottone nel TokenHUD (barra sopra il token) */
@@ -39,6 +33,14 @@
   color: #4CAF50;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alter-ego-hud i {
+  margin: 0;
+  line-height: 1;
 }
 
 .alter-ego-hud:hover {

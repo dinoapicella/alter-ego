@@ -1,7 +1,7 @@
 {
   "id": "alter-ego",
   "title": "Alter Ego",
-  "description": "Cycle between alternative token images with optional particle effects",
+  "description": "Cycle between alternative token images with optional particle effects. Integrates with Sequencer (MIT) and JB2A (CC BY-NC-SA 4.0) for animated effects.",
   "version": "1.0.0",
   "compatibility": {
     "minimum": "13",
@@ -9,7 +9,9 @@
   },
   "authors": [
     {
-      "name": "dinoapicella"
+      "name": "Dino Apicella",
+      "url": "https://ko-fi.com/dinoapicella",
+      "discord": "dinoapicella"
     }
   ],
   "esmodules": [
@@ -29,5 +31,25 @@
       "name": "Italiano",
       "path": "lang/it.json"
     }
-  ]
+  ],
+  "url": "https://github.com/dinoapicella/alter-ego",
+  "manifest": "https://github.com/dinoapicella/alter-ego/releases/latest/download/module.json",
+  "download": "https://github.com/dinoapicella/alter-ego/releases/latest/download/alter-ego.zip",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "bugs": "https://github.com/dinoapicella/alter-ego/issues",
+  "relationships": {
+    "optional": [
+      {
+        "id": "sequencer",
+        "type": "module",
+        "reason": "Required for visual effects playback"
+      },
+      {
+        "id": "jb2a_patreon",
+        "type": "module",
+        "reason": "Provides 1600+ free animated effects"
+      }
+    ]
+  }
 }

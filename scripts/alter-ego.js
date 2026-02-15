@@ -15,8 +15,36 @@ class AlterEgo {
    */
   static initialize() {
     console.log(`%c[ALTER EGO] Modulo attivato`, 'color: #ff6400; font-weight: bold;');
+    this.registerSettings();
     this.registerHooks();
     this.checkDependencies();
+  }
+  
+  /**
+   * Registra le impostazioni del modulo
+   */
+  static registerSettings() {
+    // Informazioni sul modulo
+    game.settings.register(this.ID, 'about', {
+      name: 'About Alter Ego',
+      hint: 'Alter Ego v1.0.0 by Dino Apicella | Integrates with Sequencer (MIT) and JB2A (CC BY-NC-SA 4.0) for animated effects. These modules are optional - Alter Ego works standalone. All credits for effects go to their respective teams.',
+      scope: 'world',
+      config: true,
+      type: String,
+      default: '',
+      onChange: () => {}
+    });
+    
+    // Link Ko-fi
+    game.settings.register(this.ID, 'support', {
+      name: '☕ Support Development',
+      hint: 'Enjoying Alter Ego? Support me on Ko-fi: https://ko-fi.com/dinoapicella',
+      scope: 'world',
+      config: true,
+      type: String,
+      default: '',
+      onChange: () => {}
+    });
   }
   
   /**
@@ -90,7 +118,7 @@ class AlterEgo {
     
     // Crea il bottone
     const button = $(`
-      <div class="control-icon alter-ego-hud" title="Change Token Image">
+      <div class="control-icon alter-ego-hud" title="${game.i18n.localize('ALTER_EGO.TokenHUD.ChangeImage')}">
         <i class="fas fa-sync-alt"></i>
       </div>
     `);
@@ -116,67 +144,50 @@ class AlterEgo {
   }
 
   /**
-   * Aggiunge bottoni nella title bar della scheda
+   * Aggiunge bottone Alter Ego nella scheda
    */
   static addButtons(sheet, html) {
+    // Solo GM può vedere/usare Alter Ego
+    if (!game.user.isGM) return;
+    
     const $html = html instanceof jQuery ? html : $(html);
     const actor = sheet.actor;
     
-    // Verifica se i bottoni esistono già
-    if ($html.find('.alter-ego-button').length > 0) return;
+    // Verifica se il bottone esiste già
+    if ($html.find('.alter-ego-config').length > 0) return;
     
-    // Bottone 1: Configura immagini
-    const configButton = $(`
-      <a class="alter-ego-button" title="Alter Ego - Configura Immagini Alternative">
-        <i class="fas fa-cog"></i>
+    // Crea bottone stile "Configure" / "Close"
+    const alterEgoButton = $(`
+      <a class="alter-ego-config" title="${game.i18n.localize('ALTER_EGO.Button.Title')}">
+        <i class="fas fa-user-secret"></i>
+        <span>${game.i18n.localize('ALTER_EGO.Button.Label')}</span>
       </a>
     `);
     
-    // Bottone 2: Cambia immagine ora
-    const cycleButton = $(`
-      <a class="alter-ego-cycle-button" title="Cambia Immagine Token Ora (Shift+E)">
-        <i class="fas fa-sync-alt"></i>
-      </a>
-    `);
-    
-    // Aggiungi i bottoni nella title bar
-    const headerButtons = $html.find('.window-header .header-button, .window-title').last();
-    if (headerButtons.length > 0) {
-      cycleButton.insertAfter(headerButtons);
-      configButton.insertAfter(headerButtons);
-    } else {
-      // Fallback
-      const titleBar = $html.find('.window-header, header.sheet-header').first();
-      if (titleBar.length > 0) {
-        titleBar.append(configButton);
-        titleBar.append(cycleButton);
-      }
-    }
-    
-    // Click sul bottone configura apre il dialog
-    configButton.on('click', (e) => {
+    // Click sul bottone apre il dialog
+    alterEgoButton.on('click', (e) => {
       e.preventDefault();
       this.openDialog(actor);
     });
     
-    // Click sul bottone cambia immagine
-    cycleButton.on('click', async (e) => {
-      e.preventDefault();
-      
-      // Trova il token di questo attore sulla scena
-      const tokens = canvas.tokens.placeables.filter(t => t.actor?.id === actor.id);
-      
-      if (tokens.length === 0) {
-        ui.notifications.warn('⚠️ Nessun token di questo attore sulla mappa');
-        return;
+    // Trova dove inserire il bottone (cerca Configure, Close, ecc.)
+    // In PF2e le schede hanno una sezione con Configure e Close
+    const windowControls = $html.find('.window-header .window-controls, header .window-controls');
+    const closeButton = $html.find('.window-header .close, header .close');
+    
+    if (closeButton.length > 0) {
+      // Inserisci prima del bottone Close
+      alterEgoButton.insertBefore(closeButton);
+    } else if (windowControls.length > 0) {
+      // Oppure aggiungi ai controls
+      windowControls.prepend(alterEgoButton);
+    } else {
+      // Fallback: aggiungi in header
+      const header = $html.find('.window-header, header').first();
+      if (header.length > 0) {
+        header.append(alterEgoButton);
       }
-      
-      if (tokens.length === 1) {
-        await this.cycleTokenImage(tokens[0]);
-      } else {
-        ui.notifications.info(`ℹ️ Ci sono ${tokens.length} token di ${actor.name}. Selezionane uno e premi Shift+E`);
-      }
-    });
+    }
   }
 
   /**
@@ -205,13 +216,14 @@ class AlterEgo {
           margin: 10px 0;
         }
         .ae-table th {
-          background: rgba(0,0,0,0.2);
-          padding: 6px 8px;
+          padding: 10px 8px;
           text-align: left;
-          font-size: 11px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 700;
+          color: #ddd;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
           border-bottom: 1px solid #444;
-          color: #333;
         }
         .ae-table td {
           padding: 4px 8px;
@@ -265,24 +277,29 @@ class AlterEgo {
         }
         .ae-btn-add {
           width: 100%;
-          padding: 8px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid #555;
-          border-radius: 2px;
+          padding: 10px;
+          background: linear-gradient(135deg, rgba(76,175,80,0.2) 0%, rgba(76,175,80,0.3) 100%);
+          border: 1px solid rgba(76,175,80,0.5);
+          border-radius: 4px;
           cursor: pointer;
-          font-size: 12px;
-          color: #333;
+          font-size: 13px;
+          font-weight: 600;
+          color: #2d5a2f;
           margin-top: 8px;
+          transition: all 0.2s;
         }
         .ae-btn-add:hover {
-          background: rgba(255,255,255,0.15);
+          background: linear-gradient(135deg, rgba(76,175,80,0.3) 0%, rgba(76,175,80,0.4) 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(76,175,80,0.3);
         }
         .ae-help {
           margin-top: 12px;
           padding: 10px;
-          background: rgba(0,0,0,0.08);
-          border-left: 2px solid #666;
-          border-radius: 2px;
+          background: linear-gradient(135deg, rgba(33,150,243,0.08) 0%, rgba(3,169,244,0.08) 100%);
+          border: 1px solid rgba(33,150,243,0.25);
+          border-left: 3px solid rgba(33,150,243,0.6);
+          border-radius: 4px;
           font-size: 11px;
           color: #444;
           line-height: 1.6;
@@ -292,6 +309,7 @@ class AlterEgo {
           user-select: none;
           font-weight: 600;
           margin-bottom: 8px;
+          color: #1976D2;
         }
         .ae-help-content {
           line-height: 1.7;
@@ -302,17 +320,58 @@ class AlterEgo {
         }
         .ae-help-title {
           font-weight: 600;
-          color: #222;
+          color: #1565C0;
           margin-bottom: 4px;
         }
         .ae-help-example {
           font-family: 'Courier New', monospace;
-          background: rgba(0,0,0,0.05);
+          background: rgba(33,150,243,0.12);
           padding: 4px 6px;
           border-radius: 2px;
-          color: #333;
+          color: #1565C0;
           display: inline-block;
           margin: 2px 0;
+        }
+        .ae-kofi {
+          margin-top: 12px;
+          padding: 10px 12px;
+          background: linear-gradient(135deg, rgba(255,95,95,0.12) 0%, rgba(255,165,0,0.12) 100%);
+          border: 1px solid rgba(255,95,95,0.25);
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+        }
+        .ae-kofi-text {
+          color: #555;
+          font-weight: 600;
+          font-size: 12px;
+        }
+        .ae-kofi-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          background: #FF5F5F;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 11px;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        .ae-kofi-link:hover {
+          background: #ff7a7a;
+          transform: translateY(-1px);
+          box-shadow: 0 3px 10px rgba(255,95,95,0.3);
+          color: white;
+        }
+        .ae-kofi-icon {
+          width: 15px;
+          height: 15px;
+          flex-shrink: 0;
         }
       </style>
       
@@ -320,68 +379,78 @@ class AlterEgo {
         <table class="ae-table">
           <thead>
             <tr>
-              <th style="width: 25px;">#</th>
-              <th style="width: 48%;">Token Image Path</th>
-              <th style="width: 48%;">Effect Path (optional)</th>
+              <th style="width: 25px;">${game.i18n.localize('ALTER_EGO.Table.Number')}</th>
+              <th style="width: 48%;">${game.i18n.localize('ALTER_EGO.Table.ImagePath')}</th>
+              <th style="width: 48%;">${game.i18n.localize('ALTER_EGO.Table.EffectPath')}</th>
               <th style="width: 25px;"></th>
             </tr>
           </thead>
           <tbody id="images-table">
-            ${rows || '<tr><td colspan="4" style="text-align: center; padding: 20px; color: #777;">No images configured</td></tr>'}
+            ${rows || `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #777;">${game.i18n.localize('ALTER_EGO.Dialog.NoImages')}</td></tr>`}
           </tbody>
         </table>
         
         <button type="button" id="add-image-row" class="ae-btn-add">
-          + Add Image
+          ${game.i18n.localize('ALTER_EGO.Dialog.AddImage')}
         </button>
         
         <div class="ae-help">
           <div class="ae-help-toggle">
-            💡 Help & Instructions <span style="float: right;">▼</span>
+            ${game.i18n.localize('ALTER_EGO.Help.Title')} <span style="float: right;">▼</span>
           </div>
           <div class="ae-help-content hidden">
             <div class="ae-help-section">
-              <div class="ae-help-title">📁 Token Images:</div>
-              • <strong>Option 1 - Browse:</strong> Click 📁 button → navigate folders → double-click image<br>
-              • <strong>Option 2 - Write path:</strong> Type manually in the field<br>
-              • <strong>Example:</strong> <span class="ae-help-example">worlds/my-world/tokens/goblin.png</span>
+              <div class="ae-help-title">${game.i18n.localize('ALTER_EGO.Help.ImagesTitle')}</div>
+              • ${game.i18n.localize('ALTER_EGO.Help.ImagesOption1')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.ImagesOption2')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.ImagesExample')} <span class="ae-help-example">worlds/my-world/tokens/goblin.png</span>
             </div>
             
             <div class="ae-help-section">
-              <div class="ae-help-title">✨ Effects (optional):</div>
-              • <strong>With JB2A installed:</strong> Click 🔍 → search effects → click to select<br>
-              • <strong>Without JB2A:</strong> Use your own .webm/.mp4 files<br>
-              • <strong>Custom files:</strong> Click 📁 → browse → double-click video file<br>
-              • <strong>Manual entry:</strong> Type path or JB2A effect name<br>
-              • <strong>Example JB2A:</strong> <span class="ae-help-example">jb2a.explosion.blue</span><br>
-              • <strong>Example custom:</strong> <span class="ae-help-example">worlds/my-world/effects/nova.webm</span>
+              <div class="ae-help-title">${game.i18n.localize('ALTER_EGO.Help.EffectsTitle')}</div>
+              • ${game.i18n.localize('ALTER_EGO.Help.EffectsWithJB2A')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.EffectsWithoutJB2A')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.EffectsCustomFiles')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.EffectsManual')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.EffectsExampleJB2A')} <span class="ae-help-example">jb2a.explosion.blue</span><br>
+              • ${game.i18n.localize('ALTER_EGO.Help.EffectsExampleCustom')} <span class="ae-help-example">worlds/my-world/effects/nova.webm</span>
             </div>
             
             <div class="ae-help-section">
-              <div class="ae-help-title">🎬 How it works:</div>
-              • Effect plays when you <strong>change TO</strong> that image<br>
-              • Leave effect field empty = no effect<br>
-              • After saving, use green 🔄 button or right-click token to cycle images
+              <div class="ae-help-title">${game.i18n.localize('ALTER_EGO.Help.HowItWorksTitle')}</div>
+              • ${game.i18n.localize('ALTER_EGO.Help.HowItWorks1')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.HowItWorks2')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.HowItWorks3')}
             </div>
             
             <div class="ae-help-section">
-              <div class="ae-help-title">📦 JB2A Module:</div>
-              • <strong>Optional:</strong> JB2A provides 1600+ animated effects<br>
-              • <strong>Without JB2A:</strong> You can still use your own effect files<br>
-              • <strong>To install JB2A:</strong> Manage Modules → Install "JB2A - Free"
+              <div class="ae-help-title">${game.i18n.localize('ALTER_EGO.Help.JB2ATitle')}</div>
+              • ${game.i18n.localize('ALTER_EGO.Help.JB2AOptional')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.JB2AWithout')}<br>
+              • ${game.i18n.localize('ALTER_EGO.Help.JB2AInstall')}
             </div>
           </div>
+        </div>
+        
+        <div class="ae-kofi">
+          <span class="ae-kofi-text">${game.i18n.localize('ALTER_EGO.Support.Enjoy')}</span>
+          <a href="https://ko-fi.com/dinoapicella" target="_blank" class="ae-kofi-link">
+            <svg class="ae-kofi-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>
+            </svg>
+            ${game.i18n.localize('ALTER_EGO.Support.Support')}
+          </a>
         </div>
       </form>
     `;
     
     const dialog = new Dialog({
-      title: `Alter Ego - ${actor.name}`,
+      title: game.i18n.format('ALTER_EGO.Dialog.Title', {name: actor.name}),
       content: content,
       buttons: {
         save: {
           icon: '<i class="fas fa-save"></i>',
-          label: 'Save',
+          label: game.i18n.localize('ALTER_EGO.Dialog.Save'),
           callback: async (html) => {
             const images = [];
             html.find('.ae-row').each(function() {
@@ -396,12 +465,12 @@ class AlterEgo {
             await actor.setFlag(AlterEgo.ID, AlterEgo.FLAGS.IMAGES, images);
             await actor.setFlag(AlterEgo.ID, AlterEgo.FLAGS.CURRENT_INDEX, 0);
             
-            ui.notifications.info(`✅ ${images.length} images saved`);
+            ui.notifications.info(game.i18n.format('ALTER_EGO.Notifications.ImagesSaved', {count: images.length}));
           }
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
-          label: 'Cancel'
+          label: game.i18n.localize('ALTER_EGO.Dialog.Cancel')
         }
       },
       default: 'save',
@@ -431,7 +500,7 @@ class AlterEgo {
               class="img-path ae-input" 
               value="${imagePath}"
             />
-            <button type="button" class="browse-img ae-btn-icon" title="Browse images">
+            <button type="button" class="browse-img ae-btn-icon" title="${game.i18n.localize('ALTER_EGO.Table.BrowseImage')}">
               📁
             </button>
           </div>
@@ -443,16 +512,16 @@ class AlterEgo {
               class="effect-path ae-input" 
               value="${effectPath}"
             />
-            <button type="button" class="browse-jb2a ae-btn-icon" title="Search JB2A effects">
+            <button type="button" class="browse-jb2a ae-btn-icon" title="${game.i18n.localize('ALTER_EGO.Table.SearchJB2A')}">
               🔍
             </button>
-            <button type="button" class="browse-effect ae-btn-icon" title="Browse effect files">
+            <button type="button" class="browse-effect ae-btn-icon" title="${game.i18n.localize('ALTER_EGO.Table.BrowseEffect')}">
               📁
             </button>
           </div>
         </td>
         <td style="text-align: center;">
-          <button type="button" class="remove-row ae-btn-icon ae-btn-remove" title="Remove">
+          <button type="button" class="remove-row ae-btn-icon ae-btn-remove" title="${game.i18n.localize('ALTER_EGO.Table.Remove')}">
             ✖
           </button>
         </td>
@@ -611,7 +680,7 @@ class AlterEgo {
         <input 
           type="text" 
           id="fx-search" 
-          placeholder="Search: explosion, fire, nova, magic..." 
+          placeholder="${game.i18n.localize('ALTER_EGO.EffectBrowser.Search')}" 
           style="
             padding: 8px;
             margin-bottom: 8px;
@@ -626,23 +695,23 @@ class AlterEgo {
           <div id="fx-list">${effectsList}</div>
         </div>
         <p style="margin-top: 8px; font-size: 11px; color: #555;">
-          ${effects.length} effects available | Click to select
+          ${game.i18n.format('ALTER_EGO.EffectBrowser.Available', {count: effects.length})}
         </p>
       </div>
     `;
     
     const effectDialog = new Dialog({
-      title: "Search JB2A Effect",
+      title: game.i18n.localize('ALTER_EGO.EffectBrowser.Title'),
       content: content,
       buttons: {
         clear: {
-          label: 'Clear',
+          label: game.i18n.localize('ALTER_EGO.EffectBrowser.Clear'),
           callback: () => {
             targetInput.val('');
           }
         },
         cancel: {
-          label: 'Close'
+          label: game.i18n.localize('ALTER_EGO.EffectBrowser.Close')
         }
       },
       render: (html) => {
@@ -671,49 +740,6 @@ class AlterEgo {
   /**
    * Aggiunge l'opzione al menu contestuale del token
    */
-  static addContextMenuOption(html, options) {
-    console.log('[ALTER EGO] addContextMenuOption chiamato');
-    console.log('[ALTER EGO] HTML:', html);
-    console.log('[ALTER EGO] Numero opzioni esistenti:', options.length);
-    
-    options.push({
-      name: '🔄 Change Token Image',
-      icon: '<i class="fas fa-sync-alt"></i>',
-      condition: (li) => {
-        console.log('[ALTER EGO] Controllo condizione per:', li);
-        const tokenId = li.data('token-id');
-        console.log('[ALTER EGO] Token ID:', tokenId);
-        
-        const token = canvas.tokens.get(tokenId);
-        console.log('[ALTER EGO] Token trovato:', token);
-        
-        if (!token?.actor) {
-          console.log('[ALTER EGO] Token senza attore');
-          return false;
-        }
-        
-        const config = token.actor.getFlag(this.ID, this.FLAGS.IMAGES);
-        console.log('[ALTER EGO] Config trovata:', config);
-        
-        if (!config || !Array.isArray(config) || config.length === 0) {
-          console.log('[ALTER EGO] Nessuna config valida');
-          return false;
-        }
-        
-        console.log('[ALTER EGO] ✅ Condizione OK, mostra opzione');
-        return true;
-      },
-      callback: (li) => {
-        console.log('[ALTER EGO] Callback chiamato!');
-        const tokenId = li.data('token-id');
-        const token = canvas.tokens.get(tokenId);
-        if (token) this.cycleTokenImage(token);
-      }
-    });
-    
-    console.log('[ALTER EGO] Opzione aggiunta, totale ora:', options.length);
-  }
-
   /**
    * Cicla l'immagine del token
    */
@@ -774,14 +800,10 @@ class AlterEgo {
    * Riproduce un effetto sul token
    */
   static async playEffect(token, effectPath) {
-    // Verifica Sequencer
+    // Verifica Sequencer (silenzioso - nessun popup)
     if (typeof Sequencer === 'undefined') {
-      console.warn('[ALTER EGO] Sequencer non installato');
-      ui.notifications.error('❌ Installa "Sequencer" dai moduli di Foundry per gli effetti');
       return;
     }
-    
-    console.log(`[ALTER EGO] Riproduzione effetto: ${effectPath}`);
     
     // Determina se è un file custom o un effetto del database
     const isCustomFile = effectPath.includes('/') || 
@@ -792,8 +814,6 @@ class AlterEgo {
     
     if (isCustomFile) {
       // File custom - usa direttamente il percorso
-      console.log('[ALTER EGO] File custom rilevato');
-      
       try {
         await new Sequence()
           .effect()
@@ -804,38 +824,22 @@ class AlterEgo {
             .fadeIn(200)
             .fadeOut(500)
           .play();
-        
-        console.log(`[ALTER EGO] ✅ Effetto custom riprodotto!`);
-        
       } catch (error) {
-        console.error('[ALTER EGO] Errore:', error);
-        ui.notifications.error(`❌ File non trovato: ${effectPath}`);
-        ui.notifications.info('💡 Verifica che il file esista e il percorso sia corretto');
+        console.error('[ALTER EGO] Custom effect error:', error);
+        // Nessun popup
       }
       
       return;
     }
     
     // Effetto del database (JB2A o altro)
-    console.log('[ALTER EGO] Effetto database (JB2A)');
-    
     try {
-      // Controlla se l'effetto esiste (Sequencer gestisce il database internamente)
       const exists = await Sequencer.Database.entryExists(effectPath);
       
       if (!exists) {
-        console.error(`[ALTER EGO] Effetto "${effectPath}" non trovato nel database`);
-        ui.notifications.error(`❌ Effetto "${effectPath}" non trovato!`);
-        
-        // Prova a suggerire alternative
-        const keywords = effectPath.split('.').pop(); // ultima parola (es. "blue" da "jb2a.explosion.blue")
-        ui.notifications.info(`💡 Cerca effetti disponibili nella console: Sequencer.Database.getPathsUnder("jb2a").filter(e => e.includes("${keywords}"))`);
-        
-        return;
+        console.warn(`[ALTER EGO] Effect not found: ${effectPath}`);
+        return; // Nessun popup
       }
-      
-      // Riproduci l'effetto
-      console.log('[ALTER EGO] Riproduzione in corso...');
       
       await new Sequence()
         .effect()
@@ -847,17 +851,9 @@ class AlterEgo {
           .fadeOut(500)
         .play();
       
-      console.log(`[ALTER EGO] ✅ Effetto riprodotto con successo!`);
-      
     } catch (error) {
-      console.error('[ALTER EGO] Errore durante la riproduzione:', error);
-      
-      if (error.message && error.message.includes('Invalid Asset')) {
-        ui.notifications.error(`❌ File dell'effetto non trovato: ${effectPath}`);
-        ui.notifications.info('💡 L\'effetto esiste nel database ma il file è mancante. Prova a reinstallare JB2A.');
-      } else {
-        ui.notifications.warn(`⚠️ Errore: ${error.message}`);
-      }
+      console.error('[ALTER EGO] Effect error:', error);
+      // Nessun popup
     }
   }
 }

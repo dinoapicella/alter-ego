@@ -1,23 +1,63 @@
 {
   "ALTER_EGO": {
-    "ContextMenu": {
-      "CycleImage": "🔄 Cambia Immagine Token"
+    "Button": {
+      "Title": "Configura immagini alternative del token",
+      "Label": "Alter Ego"
     },
-    "ActorSheet": {
-      "AlternativeImages": "🔄 Alter Ego - Immagini Alternative",
-      "Placeholder": "Inserisci i percorsi delle immagini alternative (uno per riga):\n\nEsempio:\nworlds/mio-mondo/tokens/normale.png\nworlds/mio-mondo/tokens/trasformato.png\nworlds/mio-mondo/tokens/ferito.png",
-      "Help": "💡 Dopo aver salvato, fai click destro sul token e scegli 'Cambia Immagine Token' per ciclare tra le immagini."
+    "Dialog": {
+      "Title": "Alter Ego - {name}",
+      "AddImage": "+ Aggiungi Immagine",
+      "Save": "Salva",
+      "Cancel": "Annulla",
+      "NoImages": "Nessuna immagine configurata"
+    },
+    "Table": {
+      "Number": "#",
+      "ImagePath": "Percorso Immagine Token",
+      "EffectPath": "Percorso Effetto (opzionale)",
+      "BrowseImage": "Sfoglia immagini",
+      "SearchJB2A": "Cerca effetti JB2A",
+      "BrowseEffect": "Sfoglia file effetto",
+      "Remove": "Rimuovi"
+    },
+    "Help": {
+      "Title": "💡 Aiuto e Istruzioni",
+      "ImagesTitle": "📁 Immagini Token:",
+      "ImagesOption1": "<strong>Opzione 1 - Sfoglia:</strong> Clicca bottone 📁 → naviga cartelle → seleziona immagine",
+      "ImagesOption2": "<strong>Opzione 2 - Scrivi percorso:</strong> Digita manualmente nel campo",
+      "ImagesExample": "<strong>Esempio:</strong>",
+      "EffectsTitle": "✨ Effetti (opzionali):",
+      "EffectsWithJB2A": "<strong>Con JB2A installato:</strong> Clicca 🔍 → cerca effetti → clicca per selezionare",
+      "EffectsWithoutJB2A": "<strong>Senza JB2A:</strong> Usa i tuoi file .webm/.mp4",
+      "EffectsCustomFiles": "<strong>File personalizzati:</strong> Clicca 📁 → sfoglia → seleziona file video",
+      "EffectsManual": "<strong>Inserimento manuale:</strong> Digita percorso o nome effetto JB2A",
+      "EffectsExampleJB2A": "<strong>Esempio JB2A:</strong>",
+      "EffectsExampleCustom": "<strong>Esempio personalizzato:</strong>",
+      "HowItWorksTitle": "🎬 Come funziona:",
+      "HowItWorks1": "L'effetto viene riprodotto quando <strong>passi A</strong> quell'immagine",
+      "HowItWorks2": "Lascia campo effetto vuoto = nessun effetto",
+      "HowItWorks3": "Dopo aver salvato, usa il bottone TokenHUD (sopra il token) per cambiare immagini",
+      "JB2ATitle": "📦 Modulo JB2A:",
+      "JB2AOptional": "<strong>Opzionale:</strong> JB2A fornisce oltre 1600 effetti animati",
+      "JB2AWithout": "<strong>Senza JB2A:</strong> Puoi comunque usare i tuoi file di effetti",
+      "JB2AInstall": "<strong>Per installare JB2A:</strong> Gestisci Moduli → Installa \"JB2A - Free\""
+    },
+    "EffectBrowser": {
+      "Title": "Cerca Effetto JB2A",
+      "Search": "Cerca: explosion, fire, nova, magic...",
+      "Available": "{count} effetti disponibili | Clicca per selezionare",
+      "Clear": "Rimuovi",
+      "Close": "Chiudi"
     },
     "Notifications": {
-      "ImageChanged": "✅ Immagine cambiata: {index} di {total}",
-      "ImagesSaved": "✅ Immagini alternative salvate! Ora puoi cambiare l'immagine del token con click destro."
+      "ImagesSaved": "✅ {count} immagini salvate"
     },
-    "Warnings": {
-      "NoActor": "⚠️ Questo token non ha un attore associato",
-      "NoImages": "⚠️ Nessuna immagine alternativa configurata.\n\nApri la scheda dell'attore → Prototype Token → cerca il campo 'Alter Ego - Immagini Alternative'"
+    "TokenHUD": {
+      "ChangeImage": "Cambia Immagine Token"
     },
-    "Errors": {
-      "UpdateFailed": "❌ Errore nell'aggiornamento dell'immagine del token"
+    "Support": {
+      "Enjoy": "Ti piace Alter Ego?",
+      "Support": "Sostienimi con un caffè! ☕"
     }
   }
 }
