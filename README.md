@@ -27,6 +27,20 @@ Alter Ego lets you configure **multiple images** for a single actor and **switch
 
 You can also add **particle effects** (explosions, magic auras, etc.) that play when switching to an image, and configure **different token sizes** for each form.
 
+<p align="center">
+  <img src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb28xMWVxZnltcjdzYTVkamQ4YWp4NTJzdTRnOWR4amR3M3dhb2drbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/or8AS0jbixf588QxwR/giphy.gif" width="800" alt="Example Demo 1 ">
+</p>
+
+
+<p align="center">
+  <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExczYwZDNyMDI1MGh0c3V2NTN2aTk0Z3d4djVlNzZldnR1bm1kN2g1NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/89NmtXF6vtmAZOdXXD/giphy.gif" width="800" alt="Example Demo 2">
+</p>
+
+
+<p align="center">
+  <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExYXk4NW80MXh3YTNoYXJjbmE0anc3MGVoNnpxOGlycmpmaDBqZTlxYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FXjOzKhNVAFCrzCfUq/giphy.gif" width="800" alt="Example Demo 3">
+</p>
+
 ---
 
 ## 🎯 Installation
