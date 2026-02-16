@@ -53,7 +53,7 @@ You can also add **particle effects** (explosions, magic auras, etc.) that play 
 5. Enable it in your world
 
 ### Method 2: Manifest URL
-1. Copy this URL: `[manifest URL will be added]`
+1. Copy this URL: `[[link](https://raw.githubusercontent.com/dinoapicella/alter-ego/refs/tags/1.0.0/module.json)]`
 2. In Foundry, go to **Add-on Modules → Install Module**
 3. Paste the URL in **Manifest URL**
 4. Click **Install**
